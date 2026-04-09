@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-dark: #0f0f1a;
+  --bg-panel: #1a1a2e;
+  --bg-card: #16213e;
+  --border: #2a2a4a;
+  --text: #e0e0ff;
+  --text-dim: #8888aa;
+  --gold: #fbbf24;
+  --red: #ef4444;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --purple: #a855f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Skill bar */
+.skill-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease-out, background-color 0.5s;
+}
+
+/* Warrior card */
+.warrior-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  transition: all 0.3s ease;
+}
+
+.warrior-card:hover {
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+}
+
+.warrior-card.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.warrior-card.in-battle {
+  animation: float 2s ease-in-out infinite;
+}
+
+.warrior-card.dead {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+/* Arena */
+.arena {
+  background: radial-gradient(ellipse at center, #1a1a3e 0%, #0f0f1a 70%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.arena::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Demon */
+.demon-container {
+  transition: all 0.5s ease;
+}
+
+.demon-body {
+  font-size: 64px;
+  filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.5));
+  transition: all 0.3s;
+}
+
+.demon-body.hit {
+  animation: hit 0.3s ease-out;
+}
+
+.demon-body.dead {
+  animation: explode 0.8s ease-out forwards;
+}
+
+/* Battle effects */
+.battle-slash {
+  position: absolute;
+  font-size: 32px;
+  animation: slash 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+/* CoDream overlay */
+.codream-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.2) 0%, rgba(30, 30, 60, 0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-out;
+  z-index: 10;
+}
+
+.codream-bubble {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  padding: 10px 16px;
+  margin: 6px;
+  animation: dream 2s ease-in-out infinite;
+  max-width: 300px;
+  font-size: 13px;
+}
+
+.codream-bubble:nth-child(2) { animation-delay: 0.3s; }
+.codream-bubble:nth-child(3) { animation-delay: 0.6s; }
+
+/* Lifecycle overlay */
+.lifecycle-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.lifecycle-overlay.fork { background: radial-gradient(ellipse, rgba(59, 130, 246, 0.2) 0%, rgba(15, 15, 26, 0.9) 100%); }
+.lifecycle-overlay.merge { background: radial-gradient(ellipse, rgba(168, 85, 247, 0.2) 0%, rgba(15, 15, 26, 0.9) 100%); }
+.lifecycle-overlay.prune { background: radial-gradient(ellipse, rgba(239, 68, 68, 0.2) 0%, rgba(15, 15, 26, 0.9) 100%); }
+.lifecycle-overlay.genesis { background: radial-gradient(ellipse, rgba(34, 197, 94, 0.2) 0%, rgba(15, 15, 26, 0.9) 100%); }
+.lifecycle-overlay.specialize { background: radial-gradient(ellipse, rgba(251, 191, 36, 0.2) 0%, rgba(15, 15, 26, 0.9) 100%); }
+
+/* Phase indicator */
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Event log */
+.log-entry {
+  padding: 4px 0;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  animation: slideUp 0.3s ease-out;
+}
+
+.log-entry.win { color: var(--green); }
+.log-entry.lose { color: var(--red); }
+.log-entry.codream { color: var(--purple); }
+.log-entry.lifecycle { color: var(--gold); }
+.log-entry.evolution { color: var(--blue); }
+
+/* Stats chart (simple CSS bar chart) */
+.stat-bar {
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-out;
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Particle effects */
+@keyframes particle {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0); opacity: 0; }
+}
+
+.particle {
+  position: absolute;
+  pointer-events: none;
+  animation: particle 1s ease-out forwards;
+}
+
+/* Battle warrior positions */
+.battle-warrior {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Win rate sparkline */
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 30px;
+}
+
+.sparkline-bar {
+  flex: 1;
+  border-radius: 1px;
+  transition: height 0.3s ease;
+  min-width: 2px;
+}
