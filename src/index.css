@@ -45,6 +45,109 @@ body {
 }
 .game-wrapper canvas:active { cursor: grabbing; }
 
+/* ── Night overlay ────────────────────────────────────────── */
+.night-overlay {
+  position: absolute;
+  inset: 0;
+  bottom: 42px;
+  background: linear-gradient(180deg, #050520ee 0%, #0a0a30dd 40%, #101040cc 100%);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+.night-overlay.active { opacity: 1; }
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle 2s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* ── Phase banner ─────────────────────────────────────────── */
+.phase-banner {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 20px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 20;
+  animation: bannerIn 0.4s ease-out;
+  pointer-events: none;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+@keyframes bannerIn { from { opacity:0; transform: translateX(-50%) translateY(-10px); } to { opacity:1; transform: translateX(-50%); } }
+.phase-banner-demon_spawn { background: #7f1d1ddd; color: #fca5a5; border: 1px solid #ef444444; }
+.phase-banner-team_select { background: #451a03dd; color: #fde68a; border: 1px solid #fbbf2444; }
+.phase-banner-battle { background: #431407dd; color: #fed7aa; border: 1px solid #f9731644; }
+.phase-banner-battle_win { background: #052e16dd; color: #bbf7d0; border: 1px solid #22c55e44; }
+.phase-banner-battle_lose { background: #450a0add; color: #fecaca; border: 1px solid #ef444444; }
+.phase-banner-codream { background: #2e1065dd; color: #e9d5ff; border: 1px solid #a855f744; }
+.phase-banner-stats_update { background: #172554dd; color: #bfdbfe; border: 1px solid #3b82f644; }
+.phase-banner-lifecycle { background: #422006dd; color: #fef3c7; border: 1px solid #f59e0b44; }
+
+/* ── CoDream panel ────────────────────────────────────────── */
+.codream-panel {
+  position: absolute;
+  top: 80px;
+  right: 12px;
+  width: 280px;
+  background: #12082aee;
+  border: 1px solid #6b21a844;
+  border-radius: 12px;
+  padding: 14px;
+  z-index: 22;
+  animation: panelSlideIn 0.5s ease-out;
+  backdrop-filter: blur(8px);
+}
+@keyframes panelSlideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+.codream-title { font-size: 14px; font-weight: 700; color: #c4b5fd; margin-bottom: 2px; }
+.codream-subtitle { font-size: 10px; color: #7c6daa; margin-bottom: 10px; }
+.codream-phases { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.codream-phase {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px; border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  opacity: 0.35;
+  transition: all 0.3s;
+}
+.codream-phase.active { opacity: 1; background: #6b21a833; border: 1px solid #a855f744; }
+.codream-phase.done { opacity: 0.6; }
+.cdp-icon { font-size: 16px; }
+.cdp-name { font-size: 11px; font-weight: 700; color: #e9d5ff; }
+.cdp-desc { font-size: 9px; color: #8b7aac; }
+.codream-insights { border-top: 1px solid #6b21a833; padding-top: 8px; }
+.ci-title { font-size: 10px; color: #a855f7; font-weight: 600; margin-bottom: 4px; }
+.ci-item { font-size: 9px; margin-bottom: 4px; }
+.ci-arrow { color: #c4b5fd; font-weight: 600; display: block; }
+.ci-text { color: #8b7aac; }
+
+/* ── Lifecycle panel ──────────────────────────────────────── */
+.lifecycle-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 22;
+  animation: lcPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+@keyframes lcPop { from { opacity:0; transform: translate(-50%,-50%) scale(0.5); } to { opacity:1; transform: translate(-50%,-50%) scale(1); } }
+.lc-icon { font-size: 48px; margin-bottom: 4px; }
+.lc-type { font-size: 20px; font-weight: 900; color: #fbbf24; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+.lc-desc { font-size: 12px; color: #e0e0ff; margin-top: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); max-width: 300px; }
+
 /* ── Title ────────────────────────────────────────────────── */
 .game-title {
   position: absolute;
