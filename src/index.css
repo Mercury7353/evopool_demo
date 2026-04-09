@@ -31,28 +31,20 @@ body {
 .game-wrapper {
   width: 100vw;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
-  background: radial-gradient(ellipse at center, #0f0f2a 0%, #050510 100%);
+  overflow: hidden;
+  background: #1a3a1a; /* dark green to match village edges */
 }
 
 .game-canvas {
-  /* Scale to fill screen maintaining aspect ratio */
-  max-width: 100vw;
-  max-height: calc(100vh - 50px);
-  width: auto;
-  height: auto;
-  aspect-ratio: 384 / 256;
+  display: block;
+  width: 100%;
+  height: calc(100% - 42px); /* minus control bar */
+  object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   cursor: pointer;
-  border: 2px solid #1a1a3e;
-  border-radius: 4px;
-  box-shadow:
-    0 0 40px rgba(59, 130, 246, 0.08),
-    0 0 80px rgba(139, 92, 246, 0.05);
+  /* NO border, NO shadow — village fills the screen */
 }
 
 /* ── Title ────────────────────────────────────────────────── */

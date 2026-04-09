@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { GameEngine } from '../game/engine';
-import { GAME_W, GAME_H, DOMAIN_HAT, type DomainKey } from '../game/renderer';
+import { GAME_W, GAME_H } from '../game/renderer';
 import { createInitialState, stepPhase, getPhaseDuration } from '../simulation';
 import type { SimulationState, Warrior, Domain, LogEntry } from '../types';
 import { DOMAIN_LABELS, DOMAIN_COLORS } from '../types';

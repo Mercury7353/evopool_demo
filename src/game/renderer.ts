@@ -1,101 +1,74 @@
 // ============================================================
-// Pixel Art Renderer — Stardew Valley–style western fantasy
+// Pixel Art Renderer — Stardew Valley–style, western fantasy
 // ============================================================
 
-export const GAME_W = 384;   // 24 tiles
-export const GAME_H = 256;   // 16 tiles
+export const GAME_W = 512;   // 32 tiles
+export const GAME_H = 320;   // 20 tiles
 export const TILE   = 16;
+
+type C2D = CanvasRenderingContext2D;
 
 // ── Palette ──────────────────────────────────────────────────
 export const PAL = {
   outline:    '#1a1a2e',
   skin:       '#e8b87a',
   skinShade:  '#c68642',
+  skinHi:     '#f5d4a8',
   eyeWhite:   '#f8fafc',
+  blush:      '#d4916a',
   hair:       '#6b4c38',
+  hairHi:     '#8a6a50',
+  mouth:      '#c27070',
 
-  grass1:     '#5cb85c',
-  grass2:     '#4a9e4a',
-  grass3:     '#6fd06f',
+  grass:      '#5cb85c', grassDk: '#3d8c3d', grassLt: '#7dd87d', grassBase: '#4aa54a',
+  path:       '#c4a373', pathDk:  '#a88a5e', pathLt:  '#dcc49a',
+  cobble:     '#8a8a9a', cobbleDk:'#6a6a7a', cobbleLt:'#aaaabc',
 
-  path1:      '#c4a373',
-  path2:      '#b39363',
-  path3:      '#d4b383',
+  treeDk:     '#1a6e2e', tree:    '#2d8b42', treeLt:  '#4aaa5c',
+  trunk:      '#6b4226', trunkDk: '#4a2e18', trunkLt: '#8a6040',
 
-  treeDark:   '#1a6e2e',
-  tree:       '#2d8b42',
-  treeLight:  '#4aaa5c',
-  trunk:      '#6b4226',
-  trunkDark:  '#4a2e18',
+  roofDk:     '#7a2e0c', roof:    '#b84010', roofLt:  '#d06030',
+  wallDk:     '#8b7355', wall:    '#d4b896', wallLt:  '#ecdcc4',
+  doorDk:     '#4a2e12', door:    '#7a5830', doorLt:  '#9a7848',
 
-  roofDark:   '#8b3a0f',
-  roof:       '#c2510c',
-  roofLight:  '#e06820',
+  stoneDk:    '#4a4a5c', stone:   '#6a6a7c', stoneLt: '#8a8a9c',
+  waterDk:    '#1a50a0', water:   '#3070c0', waterLt: '#60a0e8', waterHi: '#90c8ff',
 
-  wallDark:   '#8b7355',
-  wall:       '#d4b896',
-  wallLight:  '#e8d4b8',
+  fence:      '#9a7040', fenceDk: '#6a4820',
+  crop:       '#7ab830', cropDk:  '#508018', cropSoil:'#6a4a28',
 
-  doorDark:   '#5a3a1a',
-  door:       '#8b6b3a',
-  doorLight:  '#a08050',
+  mathDk: '#1d4ed8', math: '#3b82f6', mathLt: '#93c5fd',
+  codeDk: '#15803d', code: '#22c55e', codeLt: '#86efac',
+  rsnDk:  '#b45309', rsn:  '#f59e0b', rsnLt:  '#fde68a',
+  genDk:  '#7e22ce', gen:  '#a855f7', genLt:  '#d8b4fe',
 
-  stoneDark:  '#5a5a6a',
-  stone:      '#7a7a8a',
-  stoneLight: '#9a9aaa',
-
-  waterDark:  '#2563a0',
-  water:      '#3b82c6',
-  waterLight: '#7bb8e8',
-
-  mathDark:   '#1d4ed8', math:    '#3b82f6', mathLight:   '#93c5fd',
-  codeDark:   '#15803d', code:    '#22c55e', codeLight:   '#86efac',
-  reasonDark: '#b45309', reason:  '#f59e0b', reasonLight: '#fde68a',
-  genDark:    '#7e22ce', gen:     '#a855f7', genLight:    '#d8b4fe',
-
-  monsterBody:'#dc2626', monsterDark:'#991b1b', monsterLight:'#f87171',
-
-  gold:       '#fbbf24',
-  red:        '#ef4444',
-  green:      '#22c55e',
-  white:      '#ffffff',
-  black:      '#000000',
-  pants:      '#3a3a5a',
-  boots:      '#2a2a3a',
+  gold: '#fbbf24', red: '#ef4444', green: '#22c55e', white: '#ffffff',
+  pants: '#3a3a5a', boots: '#2a2a3a', belt: '#4a3a2a',
 } as const;
 
-type C2D = CanvasRenderingContext2D;
+// ── Domain colors ────────────────────────────────────────────
+export type DomainKey = 'math' | 'code' | 'reasoning';
 
-// ── Domain→color maps ────────────────────────────────────────
-export type DomainKey = 'math'|'code'|'reasoning';
-
-export const DOMAIN_HAT: Record<DomainKey, [string,string]> = {
-  math:      [PAL.math,      PAL.mathLight],
-  code:      [PAL.code,      PAL.codeLight],
-  reasoning: [PAL.reason,    PAL.reasonLight],
+const D_HAT:   Record<DomainKey,[string,string]> = {
+  math: [PAL.math, PAL.mathLt], code: [PAL.code, PAL.codeLt], reasoning: [PAL.rsn, PAL.rsnLt],
 };
-export const DOMAIN_ARMOR: Record<DomainKey, [string,string]> = {
-  math:      [PAL.mathDark,  PAL.math],
-  code:      [PAL.codeDark,  PAL.code],
-  reasoning: [PAL.reasonDark,PAL.reason],
+const D_ARMOR: Record<DomainKey,[string,string]> = {
+  math: [PAL.mathDk, PAL.math], code: [PAL.codeDk, PAL.code], reasoning: [PAL.rsnDk, PAL.rsn],
 };
-const MONSTER_CLR: Record<DomainKey, [string,string,string]> = {
-  math:      ['#991b1b','#dc2626','#f87171'],
-  code:      ['#14532d','#16a34a','#4ade80'],
+const D_MON: Record<DomainKey,[string,string,string]> = {
+  math: ['#7f1d1d','#dc2626','#f87171'],
+  code: ['#14532d','#16a34a','#4ade80'],
   reasoning: ['#78350f','#d97706','#fbbf24'],
 };
 
 // ── Sprite helper ────────────────────────────────────────────
-function drawSprite(
-  ctx: C2D, rows: string[], x: number, y: number,
-  colorMap: Record<string, string>,
-) {
+function spr(ctx: C2D, rows: string[], x: number, y: number, cm: Record<string,string>) {
   for (let r = 0; r < rows.length; r++) {
     const row = rows[r];
     for (let c = 0; c < row.length; c++) {
       const ch = row[c];
       if (ch === '.') continue;
-      const clr = colorMap[ch];
+      const clr = cm[ch];
       if (!clr) continue;
       ctx.fillStyle = clr;
       ctx.fillRect(Math.round(x + c), Math.round(y + r), 1, 1);
@@ -103,100 +76,105 @@ function drawSprite(
   }
 }
 
-// ── Warrior sprite (8 × 11) ─────────────────────────────────
-const W_STAND = [
-  '..0000..',
-  '.0HHHH0.',
-  '.0HhhH0.',
-  '.011110.',
-  '.0e1e10.',
-  '.011110.',
-  '..0AA0..',
-  '.0AaaA0.',
-  '..0LL0..',
-  '.0L..L0.',
-  '.00..00.',
+// ── Warrior sprites (10 wide × 16 tall) ─────────────────────
+//  '0'=outline '1'=skin '2'=skinShade '3'=hair '4'=hairHi
+//  'e'=eyeWhite 'm'=mouth  'H'/'h'=hat  'A'/'a'=armor  'B'=belt 'L'=pants 'S'=boots
+const W_STAND: string[] = [
+  '..00000...',   // 0  hat tip
+  '.0HHHHH0..',   // 1  hat
+  '.0HhHhH0..',   // 2  hat band
+  '.034111430',   // 3  hair + forehead
+  '.01e11e10.',   // 4  eyes
+  '.011221100',   // 5  cheeks
+  '..011m10..',   // 6  chin+mouth
+  '..0ABBA0..',   // 7  collar+belt accent
+  '.0AAAAAA0.',   // 8  shoulders
+  '.0AaAAaA0.',   // 9  chest
+  '.0AAAAAA0.',   // 10 body
+  '..0ABBA0..',   // 11 belt
+  '..0L00L0..',   // 12 hips
+  '..0L..L0..',   // 13 legs
+  '..0S..S0..',   // 14 boots
+  '..00..00..',   // 15 soles
 ];
-const W_WALK = [
-  '..0000..',
-  '.0HHHH0.',
-  '.0HhhH0.',
-  '.011110.',
-  '.0e1e10.',
-  '.011110.',
-  '..0AA0..',
-  '.0AaaA0.',
-  '..0LL0..',
-  '..0LL0..',
-  '..0BB0..',
+const W_WALK: string[] = [
+  '..00000...',
+  '.0HHHHH0..',
+  '.0HhHhH0..',
+  '.034111430',
+  '.01e11e10.',
+  '.011221100',
+  '..011m10..',
+  '..0ABBA0..',
+  '.0AAAAAA0.',
+  '.0AaAAaA0.',
+  '.0AAAAAA0.',
+  '..0ABBA0..',
+  '..0L00L0..',
+  '...0LL0...',   // legs together
+  '...0SS0...',   // boots together
+  '...0000...',   // soles together
 ];
 
 export interface WarriorDrawOpts {
   domain: DomainKey;
-  frame: number;       // 0 = stand, 1 = walk
+  frame: number;
   selected?: boolean;
   fighting?: boolean;
   dreaming?: boolean;
   celebrating?: boolean;
   dying?: boolean;
-  highlight?: string;
 }
 
 export function drawWarrior(ctx: C2D, x: number, y: number, opts: WarriorDrawOpts) {
-  const [hat, hatH]     = DOMAIN_HAT[opts.domain];
-  const [armor, armorH] = DOMAIN_ARMOR[opts.domain];
-  const cmap: Record<string, string> = {
-    '0': PAL.outline, '1': PAL.skin, 'e': PAL.eyeWhite,
-    'H': hat, 'h': hatH, 'A': armor, 'a': armorH,
-    'L': PAL.pants, 'B': PAL.boots,
+  const [hat, hatH] = D_HAT[opts.domain];
+  const [arm, armH] = D_ARMOR[opts.domain];
+  const cm: Record<string,string> = {
+    '0': PAL.outline, '1': PAL.skin,   '2': PAL.blush,
+    '3': PAL.hair,    '4': PAL.hairHi, 'e': PAL.eyeWhite,
+    'm': PAL.mouth,   'H': hat, 'h': hatH,
+    'A': arm, 'a': armH, 'B': PAL.belt, 'L': PAL.pants, 'S': PAL.boots,
   };
   const sprite = opts.frame === 1 ? W_WALK : W_STAND;
-  const dx = x - 4;          // center horizontally
-  const dy = y - 11;         // origin = feet
+  const dx = x - 5, dy = y - 16;
 
   // Selection glow
   if (opts.selected) {
-    ctx.fillStyle = PAL.gold + '55';
-    ctx.beginPath();
-    ctx.ellipse(x, y, 6, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = '#fbbf2444';
+    ctx.beginPath(); ctx.ellipse(x, y, 7, 3, 0, 0, Math.PI * 2); ctx.fill();
   }
+  if (opts.dreaming) ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 300) * 0.25;
+  if (opts.dying) ctx.globalAlpha = Math.max(0.1, 1 - (Date.now() % 2000) / 1800);
 
-  // Dream shimmer
-  if (opts.dreaming) {
-    ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 300) * 0.3;
-  }
-
-  // Dying fade
-  if (opts.dying) {
-    ctx.globalAlpha = 0.35;
-  }
-
-  drawSprite(ctx, sprite, dx, dy, cmap);
-
+  spr(ctx, sprite, dx, dy, cm);
   ctx.globalAlpha = 1;
 
-  // Celebration: little sparkle above head
   if (opts.celebrating) {
-    const t = (Date.now() / 200) % 4;
+    const t = Date.now() / 180;
     ctx.fillStyle = PAL.gold;
-    ctx.fillRect(x - 1 + Math.round(Math.sin(t) * 3), dy - 3 + Math.round(Math.cos(t) * 2), 1, 1);
-    ctx.fillRect(x + 1 + Math.round(Math.cos(t) * 2), dy - 2 + Math.round(Math.sin(t) * 3), 1, 1);
+    ctx.fillRect(Math.round(x - 2 + Math.sin(t) * 4), Math.round(dy - 3 + Math.cos(t) * 2), 1, 1);
+    ctx.fillRect(Math.round(x + 2 + Math.cos(t) * 3), Math.round(dy - 2 + Math.sin(t) * 3), 1, 1);
+    ctx.fillStyle = PAL.white;
+    ctx.fillRect(Math.round(x + Math.sin(t + 1) * 3), Math.round(dy - 4 + Math.cos(t + 1) * 2), 1, 1);
   }
 }
 
-// ── Monster sprite (10 × 10) ────────────────────────────────
-const MONSTER_S = [
-  '0..0..0..0',
-  '00MMMMMM00',
-  '0MMMMMMMM0',
-  '0Me0MM0eM0',
-  '0MMMMMMMM0',
-  '0MM0ee0MM0',
-  '0MMMMMMMM0',
-  '.0mMMMMm0.',
-  '..0M..M0..',
-  '..00..00..',
+// ── Monster sprites (12 wide × 14 tall) ─────────────────────
+const MON_S: string[] = [
+  '0..0....0..0',  // 0  horns
+  '0M00....00M0',  // 1  horn base
+  '00MMMMMMMM00',  // 2  head top
+  '0MMMMMMMMMM0',  // 3  head
+  '0MMe0MM0eMM0',  // 4  eyes
+  '0MMMMMMMMMM0',  // 5  face
+  '0MMM0ee0MMM0',  // 6  fangs
+  '0MMMMMMMMMM0',  // 7  neck/body
+  '0MmMMMMMmMM0',  // 8  body detail
+  '0MMMMMMMMMM0',  // 9  body
+  '.0MMMMMMMM0.',  // 10 narrow
+  '..0MM00MM0..',  // 11 legs
+  '..0MM..MM0..',  // 12 feet
+  '..00....00..',  // 13 ground
 ];
 
 export interface MonsterDrawOpts {
@@ -208,26 +186,19 @@ export interface MonsterDrawOpts {
 }
 
 export function drawMonster(ctx: C2D, x: number, y: number, opts: MonsterDrawOpts) {
-  const [dark, mid, light] = MONSTER_CLR[opts.domain];
-  const cmap: Record<string, string> = {
-    '0': PAL.outline, 'M': mid, 'm': light, 'e': PAL.eyeWhite,
+  const [dk, md, lt] = D_MON[opts.domain];
+  const cm: Record<string,string> = {
+    '0': PAL.outline, 'M': md, 'm': lt, 'e': PAL.eyeWhite,
   };
-  const dx = x - 5;
-  const dy = y - 10;
+  const dx = x - 6, dy = y - 14;
+  if (opts.dying) ctx.globalAlpha = Math.max(0, 1 - (Date.now() % 1200) / 1000);
 
-  if (opts.dying) {
-    ctx.globalAlpha = Math.max(0, 1 - (Date.now() % 1000) / 800);
-  }
-
-  // Idle bob
   const bob = Math.round(Math.sin(Date.now() / 400 + opts.frame) * 1.5);
-  drawSprite(ctx, MONSTER_S, dx, dy + bob, cmap);
-
+  spr(ctx, MON_S, dx, dy + bob, cm);
   ctx.globalAlpha = 1;
 
-  // HP bar
   if (opts.hp != null && opts.maxHp) {
-    drawHealthBar(ctx, x - 8, dy - 4, 16, opts.hp, opts.maxHp);
+    drawHealthBar(ctx, x - 10, dy - 4, 20, opts.hp, opts.maxHp);
   }
 }
 
@@ -236,7 +207,7 @@ export function drawHealthBar(ctx: C2D, x: number, y: number, w: number, hp: num
   const pct = Math.max(0, Math.min(1, hp / max));
   ctx.fillStyle = PAL.outline;
   ctx.fillRect(x - 1, y - 1, w + 2, 4);
-  ctx.fillStyle = '#333';
+  ctx.fillStyle = '#222';
   ctx.fillRect(x, y, w, 2);
   ctx.fillStyle = pct > 0.5 ? PAL.green : pct > 0.25 ? PAL.gold : PAL.red;
   ctx.fillRect(x, y, Math.round(w * pct), 2);
@@ -244,292 +215,426 @@ export function drawHealthBar(ctx: C2D, x: number, y: number, w: number, hp: num
 
 // ── Name tag ─────────────────────────────────────────────────
 export function drawNameTag(ctx: C2D, x: number, y: number, name: string) {
-  ctx.fillStyle = PAL.outline + 'aa';
-  const w = name.length * 4 + 2;
-  ctx.fillRect(x - w / 2, y, w, 7);
-  ctx.fillStyle = PAL.white;
+  const w = name.length * 3.5 + 4;
+  ctx.fillStyle = '#0a0a15cc';
+  ctx.fillRect(Math.round(x - w / 2), Math.round(y), Math.round(w), 7);
+  ctx.fillStyle = '#ddd';
   ctx.font = '5px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(name, x, y + 5.5);
+  ctx.fillText(name, Math.round(x), Math.round(y + 5.5));
 }
 
 // ── Dream bubble ─────────────────────────────────────────────
 export function drawDreamBubble(ctx: C2D, x: number, y: number, text: string) {
-  const bob = Math.sin(Date.now() / 600) * 2;
-  const bx = x - 12;
-  const by = y - 22 + bob;
-  // Bubble body
-  ctx.fillStyle = '#6b21a8' + '88';
-  ctx.fillRect(bx, by, 24, 10);
-  ctx.fillRect(bx + 1, by - 1, 22, 12);
-  // Tail
-  ctx.fillRect(x - 1, by + 10, 2, 3);
-  // Sparkle
-  ctx.fillStyle = PAL.genLight;
+  const bob = Math.sin(Date.now() / 500) * 2;
+  const bx = Math.round(x - 14), by = Math.round(y - 26 + bob);
+  ctx.fillStyle = '#4c1d95aa';
+  ctx.fillRect(bx, by, 28, 12);
+  ctx.fillRect(bx + 1, by - 1, 26, 14);
+  ctx.fillRect(Math.round(x) - 1, by + 12, 2, 3);
+  ctx.fillStyle = '#c4b5fd';
   ctx.fillRect(bx + 2, by + 1, 1, 1);
-  ctx.fillRect(bx + 6, by + 3, 1, 1);
-  ctx.fillRect(bx + 18, by + 2, 1, 1);
-  // Text hint
+  ctx.fillRect(bx + 22, by + 3, 1, 1);
+  ctx.fillRect(bx + 8, by + 8, 1, 1);
   ctx.fillStyle = '#e9d5ff';
   ctx.font = '4px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(text.slice(0, 6), x, by + 7);
+  ctx.fillText(text.slice(0, 7), Math.round(x), by + 8);
 }
 
-// ── Battle slash effect ──────────────────────────────────────
-export function drawSlash(ctx: C2D, x: number, y: number, frame: number) {
-  const clr = [PAL.white, PAL.gold, PAL.red];
-  ctx.fillStyle = clr[frame % 3];
-  // Diagonal slash
+// ── Effects ──────────────────────────────────────────────────
+export function drawSlash(ctx: C2D, x: number, y: number, f: number) {
+  const c = [PAL.white, PAL.gold, PAL.red];
+  ctx.fillStyle = c[f % 3];
+  for (let i = 0; i < 7; i++) ctx.fillRect(x - 3 + i, y - 3 + i, 2, 2);
+}
+
+export function drawSparkles(ctx: C2D, x: number, y: number, f: number) {
+  const t = f * 0.12;
+  const cc = [PAL.gold, PAL.white, PAL.genLt];
   for (let i = 0; i < 6; i++) {
-    ctx.fillRect(x - 3 + i, y - 3 + i, 2, 2);
+    const a = (i / 6) * Math.PI * 2 + t;
+    const r = 7 + Math.sin(t * 2 + i) * 3;
+    ctx.fillStyle = cc[i % 3];
+    ctx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 8 + Math.sin(a) * r), 1, 1);
   }
 }
 
-// ── Sparkle / level-up effect ────────────────────────────────
-export function drawSparkles(ctx: C2D, x: number, y: number, frame: number) {
-  const t = frame * 0.15;
-  const colors = [PAL.gold, PAL.white, PAL.genLight];
-  for (let i = 0; i < 5; i++) {
-    const angle = (i / 5) * Math.PI * 2 + t;
-    const r = 6 + Math.sin(t * 2 + i) * 3;
-    const px = x + Math.cos(angle) * r;
-    const py = y - 6 + Math.sin(angle) * r;
-    ctx.fillStyle = colors[i % 3];
-    ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
-  }
-}
-
-// ── Tiles ────────────────────────────────────────────────────
-
-function hash(a: number, b: number): number {
+// ── Hash for seeded variation ────────────────────────────────
+function H(a: number, b: number): number {
   return ((a * 2654435761) ^ (b * 2246822519)) >>> 0;
 }
 
-export function drawGrassTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.grass1;
-  ctx.fillRect(gx, gy, TILE, TILE);
-  const h = hash(gx, gy);
-  ctx.fillStyle = PAL.grass2;
-  ctx.fillRect(gx + (h % 7) * 2, gy + ((h >> 4) % 5) * 3, 1, 2);
-  ctx.fillRect(gx + ((h >> 8) % 13) + 1, gy + ((h >> 12) % 11) + 2, 1, 2);
-  if ((h & 0xf) > 10) {
-    ctx.fillStyle = PAL.grass3;
-    ctx.fillRect(gx + ((h >> 16) % 12) + 2, gy + ((h >> 20) % 10) + 3, 1, 1);
+// ── Tile drawing ─────────────────────────────────────────────
+
+function tGrass(ctx: C2D, x: number, y: number) {
+  ctx.fillStyle = PAL.grassBase;
+  ctx.fillRect(x, y, 16, 16);
+  const h = H(x, y);
+  // darker grass tufts
+  ctx.fillStyle = PAL.grassDk;
+  ctx.fillRect(x + (h % 6) * 2 + 1, y + ((h >> 4) % 5) * 3 + 1, 1, 2);
+  ctx.fillRect(x + ((h >> 8) % 12) + 2, y + ((h >> 12) % 10) + 3, 1, 2);
+  // lighter accents
+  ctx.fillStyle = PAL.grassLt;
+  if ((h & 0xf) > 8) ctx.fillRect(x + ((h >> 16) % 11) + 2, y + ((h >> 20) % 10) + 3, 1, 1);
+  if ((h & 0xf0) > 0x90) {
+    ctx.fillStyle = PAL.grass;
+    ctx.fillRect(x + ((h >> 24) % 10) + 3, y + ((h >> 28) % 8) + 4, 2, 1);
   }
 }
 
-export function drawPathTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.path1;
-  ctx.fillRect(gx, gy, TILE, TILE);
-  const h = hash(gx + 99, gy + 77);
-  ctx.fillStyle = PAL.path2;
-  ctx.fillRect(gx + (h % 6) * 2 + 1, gy + ((h >> 4) % 5) * 3, 2, 1);
-  ctx.fillStyle = PAL.path3;
-  ctx.fillRect(gx + ((h >> 8) % 12) + 2, gy + ((h >> 12) % 12) + 2, 1, 1);
+function tPath(ctx: C2D, x: number, y: number) {
+  ctx.fillStyle = PAL.path;
+  ctx.fillRect(x, y, 16, 16);
+  const h = H(x + 99, y + 77);
+  ctx.fillStyle = PAL.pathDk;
+  ctx.fillRect(x + (h % 5) * 3 + 1, y + ((h >> 4) % 4) * 4, 2, 1);
+  ctx.fillRect(x + ((h >> 8) % 10) + 3, y + ((h >> 12) % 10) + 3, 1, 1);
+  ctx.fillStyle = PAL.pathLt;
+  ctx.fillRect(x + ((h >> 16) % 12) + 2, y + ((h >> 20) % 12) + 2, 2, 1);
+  ctx.fillRect(x + ((h >> 24) % 8) + 4, y + ((h >> 28) % 8) + 4, 1, 1);
 }
 
-export function drawTreeTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.grass2;
-  ctx.fillRect(gx, gy, TILE, TILE);
+function tCobble(ctx: C2D, x: number, y: number) {
+  ctx.fillStyle = PAL.cobble;
+  ctx.fillRect(x, y, 16, 16);
+  ctx.fillStyle = PAL.cobbleDk;
+  // Stone grid pattern
+  ctx.fillRect(x, y + 4, 16, 1);
+  ctx.fillRect(x, y + 10, 16, 1);
+  ctx.fillRect(x + 5, y, 1, 4);
+  ctx.fillRect(x + 11, y, 1, 4);
+  ctx.fillRect(x + 3, y + 5, 1, 5);
+  ctx.fillRect(x + 8, y + 5, 1, 5);
+  ctx.fillRect(x + 13, y + 5, 1, 5);
+  ctx.fillRect(x + 5, y + 11, 1, 5);
+  ctx.fillRect(x + 11, y + 11, 1, 5);
+  ctx.fillStyle = PAL.cobbleLt;
+  ctx.fillRect(x + 2, y + 1, 2, 2);
+  ctx.fillRect(x + 9, y + 2, 1, 1);
+  ctx.fillRect(x + 5, y + 7, 2, 1);
+  ctx.fillRect(x + 1, y + 12, 2, 2);
+  ctx.fillRect(x + 8, y + 13, 2, 1);
+}
+
+function tTree(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
   // Trunk
-  ctx.fillStyle = PAL.trunkDark;
-  ctx.fillRect(gx + 6, gy + 10, 4, 6);
+  ctx.fillStyle = PAL.trunkDk;
+  ctx.fillRect(x + 5, y + 10, 6, 6);
   ctx.fillStyle = PAL.trunk;
-  ctx.fillRect(gx + 7, gy + 10, 3, 6);
-  // Canopy shadow
-  ctx.fillStyle = PAL.treeDark;
-  ctx.fillRect(gx + 2, gy + 3, 12, 8);
-  ctx.fillRect(gx + 3, gy + 2, 10, 10);
+  ctx.fillRect(x + 6, y + 10, 4, 6);
+  ctx.fillStyle = PAL.trunkLt;
+  ctx.fillRect(x + 7, y + 11, 1, 4);
+  // Shadow under canopy
+  ctx.fillStyle = PAL.treeDk;
+  ctx.fillRect(x + 1, y + 2, 14, 9);
+  ctx.fillRect(x + 2, y + 1, 12, 11);
   // Canopy body
   ctx.fillStyle = PAL.tree;
-  ctx.fillRect(gx + 3, gy + 3, 10, 7);
-  ctx.fillRect(gx + 4, gy + 2, 8, 9);
-  // Canopy highlight
-  ctx.fillStyle = PAL.treeLight;
-  ctx.fillRect(gx + 4, gy + 3, 4, 3);
-  ctx.fillRect(gx + 5, gy + 2, 3, 1);
+  ctx.fillRect(x + 2, y + 2, 12, 8);
+  ctx.fillRect(x + 3, y + 1, 10, 10);
+  // Highlights
+  ctx.fillStyle = PAL.treeLt;
+  ctx.fillRect(x + 4, y + 2, 5, 3);
+  ctx.fillRect(x + 3, y + 4, 3, 2);
+  ctx.fillRect(x + 5, y + 1, 3, 1);
+  // Dark detail
+  ctx.fillStyle = PAL.treeDk;
+  ctx.fillRect(x + 9, y + 7, 4, 2);
+  ctx.fillRect(x + 3, y + 8, 3, 2);
+  ctx.fillRect(x + 7, y + 9, 2, 1);
 }
 
-export function drawRoofTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.roofDark;
-  ctx.fillRect(gx, gy, TILE, TILE);
+function tRoof(ctx: C2D, x: number, y: number) {
+  ctx.fillStyle = PAL.roofDk;
+  ctx.fillRect(x, y, 16, 16);
   ctx.fillStyle = PAL.roof;
-  ctx.fillRect(gx + 1, gy + 1, 14, 13);
-  ctx.fillStyle = PAL.roofLight;
-  ctx.fillRect(gx + 2, gy + 2, 5, 2);
-  ctx.fillRect(gx + 2, gy + 6, 5, 2);
-  ctx.fillRect(gx + 2, gy + 10, 5, 2);
+  ctx.fillRect(x, y + 2, 16, 12);
+  ctx.fillStyle = PAL.roofLt;
+  ctx.fillRect(x + 1, y + 3, 6, 2);
+  ctx.fillRect(x + 1, y + 7, 6, 2);
+  ctx.fillRect(x + 1, y + 11, 6, 2);
+  // Shingle texture
+  ctx.fillStyle = PAL.roofDk;
+  ctx.fillRect(x + 8, y + 5, 7, 1);
+  ctx.fillRect(x, y + 9, 7, 1);
   // Eave
-  ctx.fillStyle = PAL.roofDark;
-  ctx.fillRect(gx, gy + 14, TILE, 2);
+  ctx.fillStyle = PAL.roofDk;
+  ctx.fillRect(x, y + 14, 16, 2);
+  ctx.fillStyle = '#5a2a0a';
+  ctx.fillRect(x, y + 15, 16, 1);
 }
 
-export function drawWallTile(ctx: C2D, gx: number, gy: number) {
+function tWall(ctx: C2D, x: number, y: number) {
   ctx.fillStyle = PAL.wall;
-  ctx.fillRect(gx, gy, TILE, TILE);
-  ctx.fillStyle = PAL.wallDark;
-  ctx.fillRect(gx, gy + 5, TILE, 1);
-  ctx.fillRect(gx, gy + 11, TILE, 1);
-  ctx.fillRect(gx + 8, gy, 1, 5);
-  ctx.fillRect(gx + 4, gy + 6, 1, 5);
-  ctx.fillRect(gx + 12, gy + 6, 1, 5);
-  ctx.fillRect(gx + 8, gy + 12, 1, 4);
+  ctx.fillRect(x, y, 16, 16);
+  // Brick/timber lines
+  ctx.fillStyle = PAL.wallDk;
+  ctx.fillRect(x, y + 5, 16, 1);
+  ctx.fillRect(x, y + 11, 16, 1);
+  ctx.fillRect(x + 8, y, 1, 5);
+  ctx.fillRect(x + 4, y + 6, 1, 5);
+  ctx.fillRect(x + 12, y + 6, 1, 5);
+  ctx.fillRect(x + 8, y + 12, 1, 4);
+  // Light mortar
+  ctx.fillStyle = PAL.wallLt;
+  ctx.fillRect(x + 1, y + 1, 3, 1);
+  ctx.fillRect(x + 10, y + 7, 1, 1);
+  ctx.fillRect(x + 2, y + 13, 2, 1);
 }
 
-export function drawWindowTile(ctx: C2D, gx: number, gy: number) {
-  drawWallTile(ctx, gx, gy);
-  ctx.fillStyle = PAL.outline;
-  ctx.fillRect(gx + 5, gy + 3, 6, 7);
-  ctx.fillStyle = '#4a6a9a';
-  ctx.fillRect(gx + 6, gy + 4, 4, 5);
-  ctx.fillStyle = '#7aadda';
-  ctx.fillRect(gx + 6, gy + 4, 2, 2);
-  ctx.fillStyle = PAL.wallLight;
-  ctx.fillRect(gx + 5, gy + 6, 6, 1);
-  ctx.fillRect(gx + 8, gy + 3, 1, 7);
+function tWindow(ctx: C2D, x: number, y: number) {
+  tWall(ctx, x, y);
+  // Window frame
+  ctx.fillStyle = PAL.wallDk;
+  ctx.fillRect(x + 4, y + 2, 8, 8);
+  // Glass
+  ctx.fillStyle = '#3a5a8a';
+  ctx.fillRect(x + 5, y + 3, 6, 6);
+  // Highlight
+  ctx.fillStyle = '#6a9acc';
+  ctx.fillRect(x + 5, y + 3, 3, 3);
+  ctx.fillStyle = '#90c0ee';
+  ctx.fillRect(x + 5, y + 3, 1, 2);
+  // Cross frame
+  ctx.fillStyle = PAL.wallDk;
+  ctx.fillRect(x + 4, y + 5, 8, 1);
+  ctx.fillRect(x + 7, y + 2, 1, 8);
+  // Sill
+  ctx.fillStyle = PAL.wallLt;
+  ctx.fillRect(x + 4, y + 10, 8, 1);
 }
 
-export function drawDoorTile(ctx: C2D, gx: number, gy: number) {
+function tDoor(ctx: C2D, x: number, y: number) {
   ctx.fillStyle = PAL.wall;
-  ctx.fillRect(gx, gy, TILE, TILE);
-  ctx.fillStyle = PAL.wallDark;
-  ctx.fillRect(gx, gy, TILE, 1);
-  // Door
-  ctx.fillStyle = PAL.doorDark;
-  ctx.fillRect(gx + 4, gy + 2, 8, 14);
+  ctx.fillRect(x, y, 16, 16);
+  ctx.fillStyle = PAL.wallDk;
+  ctx.fillRect(x, y, 16, 1);
+  // Door frame
+  ctx.fillStyle = PAL.doorDk;
+  ctx.fillRect(x + 3, y + 1, 10, 15);
+  // Door body
   ctx.fillStyle = PAL.door;
-  ctx.fillRect(gx + 5, gy + 3, 6, 13);
-  ctx.fillStyle = PAL.doorLight;
-  ctx.fillRect(gx + 6, gy + 4, 2, 3);
+  ctx.fillRect(x + 4, y + 2, 8, 14);
+  // Panels
+  ctx.fillStyle = PAL.doorLt;
+  ctx.fillRect(x + 5, y + 3, 3, 4);
+  ctx.fillRect(x + 5, y + 9, 3, 4);
+  ctx.fillStyle = PAL.doorDk;
+  ctx.fillRect(x + 5, y + 7, 6, 1);
   // Handle
   ctx.fillStyle = PAL.gold;
-  ctx.fillRect(gx + 9, gy + 9, 1, 1);
+  ctx.fillRect(x + 10, y + 8, 1, 2);
+  // Step
+  ctx.fillStyle = PAL.stoneLt;
+  ctx.fillRect(x + 3, y + 15, 10, 1);
 }
 
-export function drawWellTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.grass1;
-  ctx.fillRect(gx, gy, TILE, TILE);
+function tWell(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
   // Stone ring
-  ctx.fillStyle = PAL.stoneDark;
-  ctx.fillRect(gx + 2, gy + 4, 12, 10);
+  ctx.fillStyle = PAL.stoneDk;
+  ctx.fillRect(x + 1, y + 4, 14, 11);
   ctx.fillStyle = PAL.stone;
-  ctx.fillRect(gx + 3, gy + 5, 10, 8);
-  // Water
-  ctx.fillStyle = PAL.waterDark;
-  ctx.fillRect(gx + 4, gy + 6, 8, 6);
+  ctx.fillRect(x + 2, y + 5, 12, 9);
+  ctx.fillStyle = PAL.stoneLt;
+  ctx.fillRect(x + 3, y + 5, 3, 2);
+  ctx.fillRect(x + 10, y + 6, 2, 1);
+  // Water inside
+  ctx.fillStyle = PAL.waterDk;
+  ctx.fillRect(x + 3, y + 7, 10, 5);
   ctx.fillStyle = PAL.water;
-  ctx.fillRect(gx + 5, gy + 7, 5, 3);
-  // Beam
+  ctx.fillRect(x + 4, y + 8, 6, 3);
+  ctx.fillStyle = PAL.waterHi;
+  ctx.fillRect(x + 5, y + 9, 2, 1);
+  // Wooden posts
   ctx.fillStyle = PAL.trunk;
-  ctx.fillRect(gx + 1, gy + 2, 14, 2);
-  ctx.fillStyle = PAL.trunkDark;
-  ctx.fillRect(gx + 7, gy + 0, 2, 4);
-  // Bucket hint
+  ctx.fillRect(x + 3, y + 1, 2, 6);
+  ctx.fillRect(x + 11, y + 1, 2, 6);
+  // Crossbeam
+  ctx.fillStyle = PAL.trunkLt;
+  ctx.fillRect(x + 2, y + 1, 12, 2);
+  ctx.fillStyle = PAL.trunkDk;
+  ctx.fillRect(x + 2, y + 0, 12, 1);
+  // Rope + bucket
+  ctx.fillStyle = PAL.wallDk;
+  ctx.fillRect(x + 7, y + 2, 1, 5);
   ctx.fillStyle = PAL.trunk;
-  ctx.fillRect(gx + 8, gy + 4, 2, 2);
+  ctx.fillRect(x + 6, y + 6, 3, 2);
 }
 
-export function drawFlowerTile(ctx: C2D, gx: number, gy: number) {
-  drawGrassTile(ctx, gx, gy);
-  const h = hash(gx + 33, gy + 44);
-  const colors = ['#f472b6', '#fb923c', '#facc15', '#a78bfa'];
-  // 2-3 small flowers
+function tFlower(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
+  const h = H(x + 33, y + 44);
+  const colors = ['#f472b6', '#fb923c', '#facc15', '#a78bfa', '#f87171', '#34d399'];
   for (let i = 0; i < 3; i++) {
-    const fx = gx + 2 + ((h >> (i * 5)) % 10);
-    const fy = gy + 3 + ((h >> (i * 5 + 2)) % 9);
-    ctx.fillStyle = colors[(h >> (i * 3)) % 4];
-    ctx.fillRect(fx, fy, 2, 2);
+    const fx = x + 2 + ((h >> (i * 5)) % 9);
+    const fy = y + 3 + ((h >> (i * 5 + 2)) % 8);
+    const c = colors[(h >> (i * 3)) % colors.length];
+    // Petals
+    ctx.fillStyle = c;
+    ctx.fillRect(fx, fy, 3, 3);
+    ctx.fillRect(fx - 1, fy + 1, 1, 1);
+    ctx.fillRect(fx + 3, fy + 1, 1, 1);
+    ctx.fillRect(fx + 1, fy - 1, 1, 1);
+    // Center
     ctx.fillStyle = PAL.gold;
-    ctx.fillRect(fx, fy + 1, 1, 1);
+    ctx.fillRect(fx + 1, fy + 1, 1, 1);
     // Stem
-    ctx.fillStyle = PAL.grass2;
-    ctx.fillRect(fx, fy + 2, 1, 3);
+    ctx.fillStyle = PAL.grassDk;
+    ctx.fillRect(fx + 1, fy + 3, 1, 3);
+    // Leaf
+    ctx.fillStyle = PAL.grass;
+    ctx.fillRect(fx + 2, fy + 4, 1, 1);
   }
 }
 
-export function drawBushTile(ctx: C2D, gx: number, gy: number) {
-  drawGrassTile(ctx, gx, gy);
-  ctx.fillStyle = PAL.treeDark;
-  ctx.fillRect(gx + 3, gy + 6, 10, 8);
-  ctx.fillRect(gx + 4, gy + 5, 8, 10);
+function tBush(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
+  ctx.fillStyle = PAL.treeDk;
+  ctx.fillRect(x + 2, y + 5, 12, 10);
+  ctx.fillRect(x + 3, y + 4, 10, 12);
   ctx.fillStyle = PAL.tree;
-  ctx.fillRect(gx + 4, gy + 6, 8, 7);
-  ctx.fillRect(gx + 5, gy + 5, 6, 9);
-  ctx.fillStyle = PAL.treeLight;
-  ctx.fillRect(gx + 5, gy + 6, 3, 3);
+  ctx.fillRect(x + 3, y + 5, 10, 9);
+  ctx.fillRect(x + 4, y + 4, 8, 11);
+  ctx.fillStyle = PAL.treeLt;
+  ctx.fillRect(x + 4, y + 5, 4, 3);
+  ctx.fillRect(x + 5, y + 4, 2, 1);
+  // Berries
+  const h = H(x, y);
+  if (h % 3 === 0) {
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(x + 8, y + 7, 2, 2);
+    ctx.fillRect(x + 5, y + 10, 2, 2);
+  }
 }
 
-export function drawGateTile(ctx: C2D, gx: number, gy: number) {
-  drawGrassTile(ctx, gx, gy);
+function tGate(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
   // Stone pillar
-  ctx.fillStyle = PAL.stoneDark;
-  ctx.fillRect(gx + 3, gy, 10, TILE);
+  ctx.fillStyle = PAL.stoneDk;
+  ctx.fillRect(x + 2, y, 12, 16);
   ctx.fillStyle = PAL.stone;
-  ctx.fillRect(gx + 4, gy + 1, 8, TILE - 2);
-  ctx.fillStyle = PAL.stoneLight;
-  ctx.fillRect(gx + 5, gy + 2, 3, 4);
-  // Torch on top
-  ctx.fillStyle = PAL.gold;
-  ctx.fillRect(gx + 6, gy, 4, 2);
+  ctx.fillRect(x + 3, y + 1, 10, 14);
+  ctx.fillStyle = PAL.stoneLt;
+  ctx.fillRect(x + 4, y + 2, 4, 3);
+  ctx.fillRect(x + 4, y + 8, 3, 2);
+  // Torch holder
+  ctx.fillStyle = PAL.trunk;
+  ctx.fillRect(x + 5, y, 6, 1);
+  // Flame
+  const t = (Date.now() / 200) % 3;
   ctx.fillStyle = '#ff6b35';
-  ctx.fillRect(gx + 7, gy - 1, 2, 2);
+  ctx.fillRect(x + 6 + Math.round(t % 2), y - 2, 3, 2);
+  ctx.fillStyle = PAL.gold;
+  ctx.fillRect(x + 7, y - 3, 2, 2);
+  ctx.fillStyle = '#fff8';
+  ctx.fillRect(x + 7, y - 3, 1, 1);
 }
 
-export function drawWaterTile(ctx: C2D, gx: number, gy: number) {
-  ctx.fillStyle = PAL.waterDark;
-  ctx.fillRect(gx, gy, TILE, TILE);
+function tWater(ctx: C2D, x: number, y: number) {
+  ctx.fillStyle = PAL.waterDk;
+  ctx.fillRect(x, y, 16, 16);
   ctx.fillStyle = PAL.water;
-  const phase = (Date.now() / 800 + gx * 0.1) % 1;
-  for (let i = 0; i < 3; i++) {
-    const wx = gx + ((i * 5 + Math.floor(phase * 16)) % 14) + 1;
-    const wy = gy + i * 5 + 2;
+  const t = (Date.now() / 700 + x * 0.08 + y * 0.04) % 1;
+  for (let i = 0; i < 4; i++) {
+    const wx = x + ((i * 4 + Math.floor(t * 16)) % 14) + 1;
+    const wy = y + i * 4 + 1;
     ctx.fillRect(wx, wy, 3, 1);
   }
-  ctx.fillStyle = PAL.waterLight;
-  ctx.fillRect(gx + 4 + Math.floor(phase * 6), gy + 6, 2, 1);
+  ctx.fillStyle = PAL.waterLt;
+  ctx.fillRect(x + 3 + Math.floor(t * 8), y + 5, 3, 1);
+  ctx.fillRect(x + 8 + Math.floor((1 - t) * 5), y + 11, 2, 1);
+  ctx.fillStyle = PAL.waterHi;
+  ctx.fillRect(x + 6 + Math.floor(t * 4), y + 3, 1, 1);
+  ctx.fillRect(x + 2 + Math.floor((1 - t) * 6), y + 9, 1, 1);
 }
 
-// ── Tile dispatcher ──────────────────────────────────────────
-// Tile codes from world map
-export const TILE_CODES = {
+function tFence(ctx: C2D, x: number, y: number) {
+  tGrass(ctx, x, y);
+  // Horizontal rails
+  ctx.fillStyle = PAL.fenceDk;
+  ctx.fillRect(x, y + 5, 16, 3);
+  ctx.fillRect(x, y + 11, 16, 3);
+  ctx.fillStyle = PAL.fence;
+  ctx.fillRect(x, y + 5, 16, 2);
+  ctx.fillRect(x, y + 11, 16, 2);
+  // Vertical post
+  ctx.fillStyle = PAL.fenceDk;
+  ctx.fillRect(x + 7, y + 3, 3, 12);
+  ctx.fillStyle = PAL.fence;
+  ctx.fillRect(x + 7, y + 3, 2, 11);
+  // Post cap
+  ctx.fillStyle = PAL.fenceDk;
+  ctx.fillRect(x + 6, y + 2, 4, 2);
+}
+
+function tCrop(ctx: C2D, x: number, y: number) {
+  // Soil base
+  ctx.fillStyle = PAL.cropSoil;
+  ctx.fillRect(x, y, 16, 16);
+  ctx.fillStyle = '#5a3a1a';
+  ctx.fillRect(x, y + 4, 16, 1);
+  ctx.fillRect(x, y + 9, 16, 1);
+  ctx.fillRect(x, y + 14, 16, 1);
+  // Crops
+  ctx.fillStyle = PAL.cropDk;
+  const h = H(x + 55, y + 66);
+  for (let i = 0; i < 3; i++) {
+    const cx = x + 1 + i * 5;
+    const cy = y + 1;
+    ctx.fillStyle = PAL.crop;
+    ctx.fillRect(cx, cy, 1, 3);
+    ctx.fillRect(cx + 2, cy + 1, 1, 2);
+    ctx.fillStyle = PAL.cropDk;
+    ctx.fillRect(cx + 1, cy, 1, 2);
+    // Fruit/flower top
+    if ((h >> (i * 4)) % 3 > 0) {
+      ctx.fillStyle = ['#ef4444', '#fbbf24', '#fb923c'][(h >> (i * 2)) % 3];
+      ctx.fillRect(cx, cy - 1, 2, 1);
+    }
+  }
+  // Second row
+  for (let i = 0; i < 3; i++) {
+    const cx = x + 2 + i * 5;
+    const cy = y + 6;
+    ctx.fillStyle = PAL.crop;
+    ctx.fillRect(cx, cy, 1, 2);
+    ctx.fillRect(cx + 1, cy, 1, 3);
+    ctx.fillStyle = PAL.grassDk;
+    ctx.fillRect(cx - 1, cy + 1, 1, 1);
+  }
+}
+
+// ── Tile code constants ──────────────────────────────────────
+export const TC = {
   GRASS: 0, PATH: 1, TREE: 2, WALL: 3, ROOF: 4,
   DOOR: 5, WINDOW: 6, WELL: 7, FLOWER: 8, BUSH: 9,
-  GATE: 10, WATER: 11,
+  GATE: 10, WATER: 11, COBBLE: 12, CROP: 13, FENCE: 14,
 } as const;
 
-const TILE_DRAW: Record<number, (ctx: C2D, gx: number, gy: number) => void> = {
-  [TILE_CODES.GRASS]:  drawGrassTile,
-  [TILE_CODES.PATH]:   drawPathTile,
-  [TILE_CODES.TREE]:   drawTreeTile,
-  [TILE_CODES.WALL]:   drawWallTile,
-  [TILE_CODES.ROOF]:   drawRoofTile,
-  [TILE_CODES.DOOR]:   drawDoorTile,
-  [TILE_CODES.WINDOW]: drawWindowTile,
-  [TILE_CODES.WELL]:   drawWellTile,
-  [TILE_CODES.FLOWER]: drawFlowerTile,
-  [TILE_CODES.BUSH]:   drawBushTile,
-  [TILE_CODES.GATE]:   drawGateTile,
-  [TILE_CODES.WATER]:  drawWaterTile,
+const TILE_FN: Record<number,(ctx:C2D,x:number,y:number)=>void> = {
+  [TC.GRASS]:  tGrass,  [TC.PATH]:   tPath,   [TC.TREE]:   tTree,
+  [TC.WALL]:   tWall,   [TC.ROOF]:   tRoof,   [TC.DOOR]:   tDoor,
+  [TC.WINDOW]: tWindow, [TC.WELL]:   tWell,   [TC.FLOWER]: tFlower,
+  [TC.BUSH]:   tBush,   [TC.GATE]:   tGate,   [TC.WATER]:  tWater,
+  [TC.COBBLE]: tCobble, [TC.CROP]:   tCrop,   [TC.FENCE]:  tFence,
 };
 
 export function drawTile(ctx: C2D, code: number, gx: number, gy: number) {
-  const fn = TILE_DRAW[code] ?? drawGrassTile;
-  fn(ctx, gx, gy);
+  (TILE_FN[code] ?? tGrass)(ctx, gx, gy);
 }
 
-// ── Render full tilemap to off-screen canvas ─────────────────
+// ── Render full tilemap ──────────────────────────────────────
 export function renderTilemap(map: number[][]): HTMLCanvasElement {
-  const cvs = document.createElement('canvas');
-  cvs.width = GAME_W;
-  cvs.height = GAME_H;
-  const ctx = cvs.getContext('2d')!;
+  const c = document.createElement('canvas');
+  c.width = GAME_W; c.height = GAME_H;
+  const ctx = c.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
-
-  for (let row = 0; row < map.length; row++) {
-    for (let col = 0; col < map[row].length; col++) {
-      drawTile(ctx, map[row][col], col * TILE, row * TILE);
-    }
-  }
-  return cvs;
+  for (let r = 0; r < map.length; r++)
+    for (let c2 = 0; c2 < map[r].length; c2++)
+      drawTile(ctx, map[r][c2], c2 * TILE, r * TILE);
+  return c;
 }
