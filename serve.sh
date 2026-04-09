@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH -J evopool-demo
+#SBATCH -A hw-grp
 #SBATCH -p preempt
 #SBATCH -o /nfs/hpc/share/zhanyaol/evopool-demo/serve.log
 #SBATCH -e /nfs/hpc/share/zhanyaol/evopool-demo/serve.err
