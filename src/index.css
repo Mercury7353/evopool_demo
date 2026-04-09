@@ -36,16 +36,14 @@ body {
   background: #1a3a1a; /* dark green to match village edges */
 }
 
-.game-canvas {
+/* PixiJS canvas fills the wrapper (Stage handles sizing) */
+.game-wrapper canvas {
   display: block;
-  width: 100%;
-  height: calc(100% - 42px); /* minus control bar */
-  object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  cursor: pointer;
-  /* NO border, NO shadow — village fills the screen */
+  cursor: grab;
 }
+.game-wrapper canvas:active { cursor: grabbing; }
 
 /* ── Title ────────────────────────────────────────────────── */
 .game-title {
@@ -229,6 +227,9 @@ body {
 .wd-name { font-size: 14px; font-weight: 700; }
 .wd-level { font-size: 11px; color: var(--dim); }
 .wd-class { font-size: 11px; }
+.wd-close { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--dim); cursor: pointer; font-size: 14px; }
+.wd-close:hover { color: var(--text); }
+.wd-header { position: relative; }
 
 .wd-skills { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
 .wd-skill-row { display: flex; align-items: center; gap: 6px; }
